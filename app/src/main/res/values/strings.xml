@@ -1,0 +1,5 @@
+<resources>
+    <string name="app_name">MyNotes</string>
+    <string name="note_details_remove_button_label">Delete</string>
+    <string name="note_detail_add_button_label">Update</string>
+</resources>
