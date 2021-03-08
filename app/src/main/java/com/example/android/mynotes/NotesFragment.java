@@ -10,8 +10,19 @@ import androidx.annotation.Nullable;
 import androidx.fragment.app.Fragment;
 import androidx.recyclerview.widget.RecyclerView;
 
-public class NotesFragment extends Fragment {
+import java.util.ArrayList;
+import java.util.List;
+
+public class NotesFragment extends Fragment implements NoteAdapterCallbacks{
     private RecyclerView recyclerView;
+    private final NoteAdapter adapter = new NoteAdapter(this);
+    private final List<NoteModel> noteModels = new ArrayList<>();
+
+    @Override
+    public void onCreate(@Nullable Bundle savedInstanceState) {
+        super.onCreate(savedInstanceState);
+        buildList();
+    }
 
     @Nullable
     @Override
@@ -26,5 +37,40 @@ public class NotesFragment extends Fragment {
     public void onViewCreated(@NonNull View view, @Nullable Bundle savedInstanceState) {
         super.onViewCreated(view, savedInstanceState);
         recyclerView=view.findViewById(R.id.rv_notes);
+    }
+
+    @Override
+    public void onActivityCreated(@Nullable Bundle savedInstanceState) {
+        super.onActivityCreated(savedInstanceState);
+        recyclerView.addItemDecoration(new NoteSpaceDecorator(getResources().getDimensionPixelSize(R.dimen.default_space)));
+        recyclerView.setAdapter(adapter);
+        adapter.setItems(noteModels);
+    }
+
+    @Override
+    public void onItemClicked(int position) {
+        NoteModel model = noteModels.get(position);
+        replaceFragment(model);
+    }
+
+    private void replaceFragment(@NonNull NoteModel model){
+        Fragment fragment = NotesDetailsFragment.newInstance(model);
+        requireActivity().getSupportFragmentManager()
+                .beginTransaction()
+                .replace(R.id.layout_container,fragment)
+                .addToBackStack(null)
+                .commit();
+    }
+
+    private void buildList(){
+        for (int i =0; i<100;i++){
+            String title = String.format("title %s",i);
+            String description = String.format("description %s",i);
+            int color = R.color.design_default_color_background;
+            if(i%2==0){
+                color = R.color.design_default_color_primary_variant;
+            }
+            noteModels.add(new NoteModel(String.valueOf(i),title,description,color));
+        }
     }
 }
