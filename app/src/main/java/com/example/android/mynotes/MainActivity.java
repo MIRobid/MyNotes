@@ -5,6 +5,8 @@ import androidx.fragment.app.Fragment;
 
 import android.os.Bundle;
 
+import com.google.firebase.firestore.FirebaseFirestore;
+
 public class MainActivity extends AppCompatActivity {
 
     @Override
@@ -13,6 +15,7 @@ public class MainActivity extends AppCompatActivity {
         setContentView(R.layout.layout_container);
 
         if(savedInstanceState==null){
+            FirebaseFirestore db = FirebaseFirestore.getInstance();
             Fragment fragment=new NotesFragment();
             getSupportFragmentManager()
                     .beginTransaction()
