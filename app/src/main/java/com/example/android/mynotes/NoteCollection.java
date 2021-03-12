@@ -1,4 +1,4 @@
-package com.example.android.mynotes;
+/*package com.example.android.mynotes;
 
 import android.util.Log;
 
@@ -54,3 +54,5 @@ db.collection("users")
         }
     });
 }
+
+ */

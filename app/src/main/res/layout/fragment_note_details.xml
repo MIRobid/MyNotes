@@ -54,4 +54,12 @@
         android:layout_height="52dp"
         android:text="@string/note_detail_add_button_label"/>
 
+    <com.google.android.material.button.MaterialButton
+        style="@style/Widget.MaterialComponents.Button.UnelevatedButton"
+        android:id="@+id/alertDialog1"
+        android:layout_width="match_parent"
+        android:layout_margin="16dp"
+        android:layout_height="52dp"
+        android:text="@string/alert_dialog_1"/>
+
 </LinearLayout>

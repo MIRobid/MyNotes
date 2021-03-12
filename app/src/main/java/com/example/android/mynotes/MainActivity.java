@@ -15,12 +15,13 @@ public class MainActivity extends AppCompatActivity {
         setContentView(R.layout.layout_container);
 
         if(savedInstanceState==null){
-            FirebaseFirestore db = FirebaseFirestore.getInstance();
+            //FirebaseFirestore db = FirebaseFirestore.getInstance();
             Fragment fragment=new NotesFragment();
             getSupportFragmentManager()
                     .beginTransaction()
                     .replace(R.id.layout_container,fragment)
                     .commit();
+
         }
     }
 }

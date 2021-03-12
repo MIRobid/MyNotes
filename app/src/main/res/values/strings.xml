@@ -2,4 +2,11 @@
     <string name="app_name">MyNotes</string>
     <string name="note_details_remove_button_label">Delete</string>
     <string name="note_detail_add_button_label">Update</string>
+    <string name="alert_dialog_1">Alert</string>
+    <string name="exclamation">Warning!</string>
+    <string name="press_button">OK!</string>
+    <string name="button">Button</string>
+    <string name="yes">Yes</string>
+    <string name="no">No</string>
+    <string name="dunno">Dunno</string>
 </resources>
