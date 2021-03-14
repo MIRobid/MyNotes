@@ -9,4 +9,7 @@
     <string name="yes">Yes</string>
     <string name="no">No</string>
     <string name="dunno">Dunno</string>
+    <string name="note_action_delete">Delete</string>
+    <string name="note_details_update_button_label">Update</string>
+    <string name="note_details_add_button_label">Add</string>
 </resources>

@@ -1,8 +1,12 @@
 package com.example.android.mynotes;
 
+import android.content.Context;
 import android.content.DialogInterface;
 import android.os.Bundle;
+import android.text.TextUtils;
+import android.util.Log;
 import android.view.LayoutInflater;
+import android.view.MenuItem;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.Button;
@@ -13,12 +17,15 @@ import android.widget.Toast;
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.appcompat.app.AlertDialog;
+import androidx.appcompat.widget.Toolbar;
 import androidx.fragment.app.Fragment;
 
 import com.google.android.material.appbar.MaterialToolbar;
 import com.google.android.material.button.MaterialButton;
 
-public class NotesDetailsFragment extends Fragment {
+import java.util.UUID;
+
+public class NotesDetailsFragment extends Fragment implements NoteFirestoreCallbacks {
 
     private final static String ARG_MODEL_KEY="arg_model_key";
 
@@ -30,12 +37,29 @@ public class NotesDetailsFragment extends Fragment {
         return fragment;
     }
 
+    public interface NoteDetailClickListener{
+        void onItemClicked(@NonNull String text);
+    }
+
+    private NoteDetailClickListener clickListener;
+    private final NoteRepository repository = new NoteRepositoryImpl(this);
+
     private EditText titleEditText;
     private EditText descriptionEditText;
     private MaterialButton updateButton;
-    private MaterialButton deleteButton;
     private MaterialToolbar toolbar;
     private Button alert1;
+
+    @Override
+    public void onAttach(@NonNull Context context) {
+        super.onAttach(context);
+        try{
+            clickListener=(NoteDetailClickListener) context;
+        }catch(ClassCastException e){
+            Log.d("OnAttach", String.valueOf(e));
+        }
+
+    }
 
     @Nullable
     @Override
@@ -51,7 +75,6 @@ public class NotesDetailsFragment extends Fragment {
         super.onViewCreated(view, savedInstanceState);
         titleEditText=view.findViewById(R.id.et_note_details_title);
         descriptionEditText=view.findViewById(R.id.et_note_details_description);
-        deleteButton=view.findViewById(R.id.btn_note_detail_remove);
         updateButton =view.findViewById(R.id.btn_note_detail_update);
         toolbar=view.findViewById(R.id.toolbar_note_details);
         alert1 = view.findViewById(R.id.alertDialog1);
@@ -66,19 +89,96 @@ public class NotesDetailsFragment extends Fragment {
         toolbar.setNavigationOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                if(getActivity()!=null){
+                if (getActivity() != null) {
                     getActivity().onBackPressed();
                 }
             }
         });
-        if(getArguments()!=null){
-            NoteModel noteModel= (NoteModel) getArguments().getSerializable(ARG_MODEL_KEY);
-            titleEditText.setText(noteModel.getTitle());
-            descriptionEditText.setText(noteModel.getDescription());
-            alert1.setOnClickListener(clickAlertDialog1);
+        updateButton.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                final String title = titleEditText.getText().toString();
+                final String description = descriptionEditText.getText().toString();
+                update(title, description);
+                sendResult(title);
+                sendResultToActivity(title);
+            }
+        });
+
+
+        if (getArguments() != null) {
+            NoteModel noteModel = (NoteModel) getArguments().getSerializable(ARG_MODEL_KEY);
+            if (noteModel != null) {
+                updateButton.setText(getString(R.string.note_details_update_button_label));
+                toolbar.inflateMenu(R.menu.note_menu);
+                toolbar.setOnMenuItemClickListener(new Toolbar.OnMenuItemClickListener() {
+                    @Override
+                    public boolean onMenuItemClick(MenuItem item) {
+                        if (item.getItemId() == R.id.action_note_delete) {
+                            repository.onDeleteClicked(noteModel.getId());
+                            if (getActivity() != null) {
+                                getActivity().onBackPressed();
+                            }
+                        }
+                        return false;
+                    }
+                });
+                titleEditText.setText(noteModel.getTitle());
+                descriptionEditText.setText(noteModel.getDescription());
+                //alert1.setOnClickListener(View.OnClickListener);
+            }
         }
+    }
+
+    @Override
+    public void onSuccess(@Nullable String message) {
+        showToastMessage(message);
+    }
+
+    @Override
+    public void onError(@Nullable String message) {
+        showToastMessage(message);
+    }
+
+    private void update(
+            @Nullable String title,
+            @Nullable String description){
+        if(!TextUtils.isEmpty(title)&&!TextUtils.isEmpty(description)){
+            if(getArguments()!=null){
+                NoteModel noteModel = (NoteModel) getArguments().getSerializable(ARG_MODEL_KEY);
+                if(noteModel!=null){
+                    repository.setNote(noteModel.getId(),title,description);
+                }else{
+                    String id= UUID.randomUUID().toString();
+                    repository.setNote(id,title,description);
+                }
+            }
+        }else{
+            Toast.makeText(requireContext(),"Fill the title and description",Toast.LENGTH_SHORT).show();
+        }
+    }
+
+    private void showToastMessage(@Nullable String message){
+        if(message!=null){
+            Toast.makeText(requireContext(),message,Toast.LENGTH_SHORT).show();
+        }
+    }
+
+    private void sendResult(@NonNull String text){
+        Bundle result = new Bundle();
+        result.putString("bundleKey",text);
+        getParentFragmentManager().setFragmentResult("requestKey",result);
+    }
+
+    private void sendResultToActivity(@NonNull String text){
+        clickListener.onItemClicked(text);
+    }
+
+    private void deleteNote(@NonNull String id){
 
     }
+
+
     private View.OnClickListener clickAlertDialog1 = new View.OnClickListener(){
         @Override
         public void onClick(View view) {
